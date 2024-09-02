@@ -1,0 +1,17 @@
+{
+    "kobo_conn_id": "kobo_connection_id_airflow",
+    "formid": 39,
+    "form_id_string": "y4nMrHxChj3XZEQLVDwQIN",
+    "postgres_conn_id": "postgres_connection_id_airflow",
+    "geonode_conn_id": "geonode_connection_id_airflow",
+    "dataset_name": "dataset_name_in_geonode",
+    "columns": [
+        "username",
+        "column_1",
+        "column_2",
+        "column_3",
+        "column_4",
+        "column_5",
+        "my_coords_column"
+    ]
+}
