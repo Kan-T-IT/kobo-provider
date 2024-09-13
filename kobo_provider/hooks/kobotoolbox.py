@@ -26,8 +26,10 @@ import requests
 
 class KoboHook(BaseHook):
     """
-    Interact with KoboToolBox-PRUEBA.
+    Interact with KoboToolBox.
+    
     Methods list:
+    
     * get_form_ids: Allows to obtain the formid and the id_string of a form providing his formid or his id_string.
     * get_form_metadata: Gets the metadata of a form.
     * get_form_columns: Gets form columns.
