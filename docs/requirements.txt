@@ -5,10 +5,14 @@ sphinxcontrib-openapi
 sphinx-autobuild
 sphinx_rtd_theme
 sphinxcontrib-openapi
-apache-airflow-providers-ssh
 apache-airflow
+apache-airflow-providers-ssh
+apache-airflow-providers-common-sql
 apache-airflow-providers-postgres
 Unidecode
 wheel
 pandas
 geopandas
+sqlalchemy
+psycopg2
+shapely
