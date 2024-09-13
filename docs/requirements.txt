@@ -16,3 +16,4 @@ geopandas
 sqlalchemy
 psycopg2
 shapely
+requests
