@@ -24,5 +24,6 @@ airflow/providers/common/sql/sensors/sql.pyi,sha256=hDt9OeV5SHpz4s8yHhohrEUzNuKB
 apache_airflow_providers_common_sql-1.16.0.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
 apache_airflow_providers_common_sql-1.16.0.dist-info/METADATA,sha256=mUscDxs6yTlspFJdWEsCwe_oAv_PIcIQxnH7L_l3pRs,6217
 apache_airflow_providers_common_sql-1.16.0.dist-info/RECORD,,
+apache_airflow_providers_common_sql-1.16.0.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
 apache_airflow_providers_common_sql-1.16.0.dist-info/WHEEL,sha256=EZbGkh7Ie4PoZfRQ8I0ZuP9VklN_TvcZ6DSE5Uar4z4,81
 apache_airflow_providers_common_sql-1.16.0.dist-info/entry_points.txt,sha256=h8UXRp2crPuGmYVYRM5oe168qIh7g-4t2QQbVMizKjI,106
