@@ -23,7 +23,6 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.exceptions import AirflowException, ParamValidationError, AirflowSkipException
 
-from ..hooks.kobotoolbox import KoboHook
 
 
 import json
