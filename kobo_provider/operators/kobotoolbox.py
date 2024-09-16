@@ -24,7 +24,7 @@ from airflow.providers.postgres.hooks.postgres import PostgresHook
 from airflow.exceptions import AirflowException, ParamValidationError, AirflowSkipException
 
 from ..hooks.kobotoolbox import KoboHook
-from geonode_provider.hooks.geonode import GeoNodeHook
+
 
 import json
 import re
