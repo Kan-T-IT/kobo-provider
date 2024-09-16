@@ -11,7 +11,6 @@ Welcome to KoboToolBox Provider for Apache Airflow's documentation!
 
    modules.rst
    
-   modules
    kobo_provider.hooks
    kobo_provider.operators
 
