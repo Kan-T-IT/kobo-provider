@@ -2,7 +2,7 @@ Metadata-Version: 2.1
 Name: airflow_providers_geonode
 Version: 1.1.0
 Summary: A GeoNode provider for Apache Airflow
-Home-page: https://github.com/herver1971/geonode-provider
+Home-page: https://github.com/Kan-T-IT/geonode-provider
 Author: Fawzi El Gamal
 Author-email: fawzielgamal@icloud.com
 License: Apache-2.0
