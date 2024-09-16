@@ -32,7 +32,7 @@ jobs:
     # 4. Run sphinx-apidoc
     - name: Generate API documentation
       run: |
-        sphinx-apidoc -f -o docs kobo_provider
+        sphinx-apidoc -F -o docs kobo_provider
 
     # 5. Build the HTML docs (opcional)
     - name: Build HTML documentation
