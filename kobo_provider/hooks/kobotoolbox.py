@@ -26,7 +26,7 @@ import requests
 
 class KoboHook(BaseHook):
     """
-    Interact with KoboToolBox-Prueba.
+    Interact with KoboToolBox.
     
     Methods list:
     
