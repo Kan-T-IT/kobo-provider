@@ -19,7 +19,7 @@ psycopg2/__pycache__/sql.cpython-312.pyc,,
 psycopg2/__pycache__/tz.cpython-312.pyc,,
 psycopg2/_ipaddress.py,sha256=jkuyhLgqUGRBcLNWDM8QJysV6q1Npc_RYH4_kE7JZPU,2922
 psycopg2/_json.py,sha256=XPn4PnzbTg1Dcqz7n1JMv5dKhB5VFV6834GEtxSawt0,7153
-psycopg2/_psycopg.cpython-312-x86_64-linux-gnu.so,sha256=2Rln9rZe5asjYzZGhkZ24aLRMP1Ar9LaxKE0xTeWFHA,1233368
+psycopg2/_psycopg.cpython-312-x86_64-linux-gnu.so,sha256=4_HxjIYaH8d07R80Za_qSuvaVq_zMT7UnNn-b2HE8II,1233368
 psycopg2/_range.py,sha256=sXeenGraJEEw2I3mc8RlmNivy2jMg7zWoanDes2Ywp8,18494
 psycopg2/errorcodes.py,sha256=jb1SkuGq5zJT7F99GFAUi3VQH8GbsB7zRHiLsAWAU0Q,14362
 psycopg2/errors.py,sha256=aAS4dJyTg1bsDzJDCRQAMB_s7zv-Q4yB6Yvih26I-0M,1425
