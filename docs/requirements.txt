@@ -16,3 +16,4 @@ sqlalchemy
 psycopg2
 shapely
 requests
+git+https://github.com/herver1971/geonode-provider.git
