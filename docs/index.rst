@@ -11,9 +11,6 @@ Welcome to KoboToolBox Provider for Apache Airflow's documentation!
 
    modules.rst
    
-   kobo_provider.hooks
-   kobo_provider.operators
-
 Indices and tables
 ==================
 
