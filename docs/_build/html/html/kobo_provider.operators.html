@@ -74,7 +74,19 @@
 <li class="toctree-l1"><a class="reference internal" href="kobo_provider.hooks.html">kobo_provider.hooks package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">kobo_provider.operators package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kobo-provider-operators-kobotoolbox-module">kobo_provider.operators.kobotoolbox module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-kobo_provider.operators.kobotoolbox">kobo_provider.operators.kobotoolbox module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.create_geometry"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.create_geometry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.execute"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.execute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_attachments"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.parse_attachments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_repeat"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.parse_repeat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_attachments"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.process_attachments()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_repeat_geometry_column"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.process_repeat_geometry_column()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.template_fields"><code class="docutils literal notranslate"><span class="pre">KoboToGeoNodeOperator.template_fields</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-kobo_provider.operators">Module contents</a></li>
 </ul>
 </li>
@@ -111,8 +123,74 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
-<section id="kobo-provider-operators-kobotoolbox-module">
-<h2>kobo_provider.operators.kobotoolbox module<a class="headerlink" href="#kobo-provider-operators-kobotoolbox-module" title="Link to this heading"></a></h2>
+<section id="module-kobo_provider.operators.kobotoolbox">
+<span id="kobo-provider-operators-kobotoolbox-module"></span><h2>kobo_provider.operators.kobotoolbox module<a class="headerlink" href="#module-kobo_provider.operators.kobotoolbox" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">kobo_provider.operators.kobotoolbox.</span></span><span class="sig-name descname"><span class="pre">KoboToGeoNodeOperator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kobo_conn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">form_id_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postgres_conn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geonode_conn_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'append'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOperator</span></code></p>
+<p>This operator integrates KoboToolBox with GeoNode, automating the migration of georeferenced forms to GeoNode.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.create_geometry">
+<span class="sig-name descname"><span class="pre">create_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator.create_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.create_geometry" title="Link to this definition"></a></dt>
+<dd><p>This method process each row from coordinates column of a DataFrame and identifies which geometry type is and parse it to a standard geometric field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Standard geometric object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.execute" title="Link to this definition"></a></dt>
+<dd><p>Derive when creating an operator.</p>
+<p>Context is the same dictionary used as when rendering jinja templates.</p>
+<p>Refer to get_template_context for more context.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_attachments">
+<span class="sig-name descname"><span class="pre">parse_attachments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator.parse_attachments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_attachments" title="Link to this definition"></a></dt>
+<dd><p>This method process each row from attachments column of a DataFrame and parse it to be displayed correctly in GeoNode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String with each URL formated correctly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_repeat">
+<span class="sig-name descname"><span class="pre">parse_repeat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator.parse_repeat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_repeat" title="Link to this definition"></a></dt>
+<dd><p>This method process each row from repeat-type column (not include attachments columns) of a DataFrame and parse it to be displayed correctly in GeoNode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String with each response formated correctly.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_attachments">
+<span class="sig-name descname"><span class="pre">process_attachments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attachment_columns</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator.process_attachments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_attachments" title="Link to this definition"></a></dt>
+<dd><p>Process each row to handle attachment columns in the DataFrame.
+For simple attachment columns (strings), replace the value with the download URL.
+For multiple attachment columns (lists), replace each value with the corresponding download URL, separated by spaces.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_repeat_geometry_column">
+<span class="sig-name descname"><span class="pre">process_repeat_geometry_column</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/kobo_provider/operators/kobotoolbox.html#KoboToGeoNodeOperator.process_repeat_geometry_column"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_repeat_geometry_column" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.template_fields">
+<span class="sig-name descname"><span class="pre">template_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('kobo_conn_id',</span> <span class="pre">'formid',</span> <span class="pre">'form_id_string',</span> <span class="pre">'postgres_conn_id',</span> <span class="pre">'geonode_conn_id',</span> <span class="pre">'columns',</span> <span class="pre">'dataset_name',</span> <span class="pre">'mode')</span></em><a class="headerlink" href="#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.template_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-kobo_provider.operators">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-kobo_provider.operators" title="Link to this heading"></a></h2>
