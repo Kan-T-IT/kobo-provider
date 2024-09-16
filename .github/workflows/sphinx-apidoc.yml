@@ -37,7 +37,7 @@ jobs:
     # 5. Build the HTML docs (opcional)
     - name: Build HTML documentation
       run: |
-        sphinx-build -M html docs docs/_build/html
+        sphinx-build -Y html docs docs/_build/html
 
      # 6. Commit and push the generated documentation
     - name: Commit and push changes
