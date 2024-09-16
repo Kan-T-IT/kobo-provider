@@ -1,0 +1,2 @@
+[apache_airflow_provider]
+provider_info = geonode_provider.__init__:get_provider_info
