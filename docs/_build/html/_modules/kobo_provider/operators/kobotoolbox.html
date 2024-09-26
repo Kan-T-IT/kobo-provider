@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kobo_provider.operators.kobotoolbox &mdash; KoboToolBox Provider for Apache Airflow 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            KoboToolBox Provider for Apache Airflow
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">kobo_provider</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">KoboToolBox Provider for Apache Airflow</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../../kobo_provider.html">kobo_provider</a></li>
+      <li class="breadcrumb-item active">kobo_provider.operators.kobotoolbox</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for kobo_provider.operators.kobotoolbox</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed to the Apache Software Foundation (ASF) under one</span>
+<span class="c1"># or more contributor license agreements.  See the NOTICE file</span>
+<span class="c1"># distributed with this work for additional information</span>
+<span class="c1"># regarding copyright ownership.  The ASF licenses this file</span>
+<span class="c1"># to you under the Apache License, Version 2.0 (the</span>
+<span class="c1"># &quot;License&quot;); you may not use this file except in compliance</span>
+<span class="c1"># with the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#   http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing,</span>
+<span class="c1"># software distributed under the License is distributed on an</span>
+<span class="c1"># &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span>
+<span class="c1"># KIND, either express or implied.  See the License for the</span>
+<span class="c1"># specific language governing permissions and limitations</span>
+<span class="c1"># under the License.</span>
+<span class="c1"># Provider developed by Fawzi El Gamal from KAN&#39;s Territory &amp; IT ETL team.</span>
+
+
+<span class="kn">from</span> <span class="nn">airflow.models</span> <span class="kn">import</span> <span class="n">BaseOperator</span>
+<span class="kn">from</span> <span class="nn">airflow.utils.decorators</span> <span class="kn">import</span> <span class="n">apply_defaults</span>
+<span class="kn">from</span> <span class="nn">airflow.hooks.base_hook</span> <span class="kn">import</span> <span class="n">BaseHook</span>
+<span class="kn">from</span> <span class="nn">airflow.providers.postgres.hooks.postgres</span> <span class="kn">import</span> <span class="n">PostgresHook</span>
+<span class="kn">from</span> <span class="nn">airflow.exceptions</span> <span class="kn">import</span> <span class="n">AirflowException</span><span class="p">,</span> <span class="n">ParamValidationError</span><span class="p">,</span> <span class="n">AirflowSkipException</span>
+
+<span class="kn">from</span> <span class="nn">..hooks.kobotoolbox</span> <span class="kn">import</span> <span class="n">KoboHook</span>
+<span class="kn">from</span> <span class="nn">geonode_provider.hooks.geonode</span> <span class="kn">import</span> <span class="n">GeoNodeHook</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">unidecode</span> <span class="kn">import</span> <span class="n">unidecode</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">create_engine</span><span class="p">,</span> <span class="n">inspect</span><span class="p">,</span> <span class="n">text</span>
+<span class="kn">import</span> <span class="nn">psycopg2.errors</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiLineString</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator">[docs]</a>
+<span class="k">class</span> <span class="nc">KoboToGeoNodeOperator</span><span class="p">(</span><span class="n">BaseOperator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This operator integrates KoboToolBox with GeoNode, automating the migration of georeferenced forms to GeoNode.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">template_fields</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s1">&#39;kobo_conn_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;formid&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;form_id_string&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;postgres_conn_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;geonode_conn_id&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;columns&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dataset_name&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;mode&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="nd">@apply_defaults</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">kobo_conn_id</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">formid</span><span class="p">:</span><span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">form_id_string</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">postgres_conn_id</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">geonode_conn_id</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">columns</span><span class="p">:</span><span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">dataset_name</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;append&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KoboToGeoNodeOperator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="n">kobo_conn_id</span><span class="p">,</span> <span class="n">postgres_conn_id</span><span class="p">,</span> <span class="n">geonode_conn_id</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="n">formid</span><span class="p">,</span> <span class="n">form_id_string</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kobo_conn_id</span> <span class="o">=</span> <span class="n">kobo_conn_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formid</span> <span class="o">=</span> <span class="n">formid</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span> <span class="o">=</span> <span class="n">form_id_string</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">postgres_conn_id</span> <span class="o">=</span> <span class="n">postgres_conn_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geonode_conn_id</span> <span class="o">=</span> <span class="n">geonode_conn_id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span> <span class="c1"># Optional</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span> <span class="o">=</span> <span class="n">dataset_name</span> <span class="c1"># Optional</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span> <span class="c1"># Optional</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParamValidationError</span><span class="p">(</span><span class="s1">&#39;Config parameters are not provided. Must to provide almost &quot;kobo_conn_id&quot;, &quot;formid&quot; or &quot;form_id_string&quot;, &quot;postgres_conn_id&quot;, &quot;geonode_conn_id&quot;.&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator.execute">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.execute">[docs]</a>
+    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">all</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">kobo_conn_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">postgres_conn_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">geonode_conn_id</span><span class="p">])</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span><span class="p">])):</span>
+            <span class="k">raise</span> <span class="n">ParamValidationError</span><span class="p">(</span><span class="s1">&#39;Config parameters are not provided. Must to provide almost &quot;kobo_conn_id&quot;, &quot;formid&quot; or &quot;form_id_string&quot;, &quot;postgres_conn_id&quot;, &quot;geonode_conn_id&quot;.&#39;</span><span class="p">)</span>
+
+        <span class="n">kobo_conn</span> <span class="o">=</span> <span class="n">KoboHook</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kobo_conn_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;_id&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span> <span class="o">=</span> <span class="n">kobo_conn</span><span class="o">.</span><span class="n">get_form_ids</span><span class="p">(</span><span class="n">id_string</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">formid</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span> <span class="o">=</span> <span class="n">kobo_conn</span><span class="o">.</span><span class="n">get_form_ids</span><span class="p">(</span><span class="n">formid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">)</span>
+
+        <span class="n">form_columns</span><span class="p">,</span> <span class="n">geometric_columns</span><span class="p">,</span> <span class="n">repeat_columns</span> <span class="o">=</span> <span class="n">kobo_conn</span><span class="o">.</span><span class="n">get_form_columns</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span><span class="p">)</span>
+        <span class="n">form_columns_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">form_columns_names_repeat</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">form_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">form_columns_names</span><span class="p">:</span>
+                <span class="n">form_columns_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">form_columns_names_repeat</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">form_columns_names_repeat</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Repeated columns name: </span><span class="si">{</span><span class="n">form_columns_names_repeat</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AirflowException</span><span class="p">(</span><span class="s2">&quot;There cannot be columns with the same name.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset_name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">kobo_conn</span><span class="o">.</span><span class="n">get_form_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">)[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;append&quot;</span><span class="p">:</span>
+            <span class="n">postgres_conn</span> <span class="o">=</span> <span class="n">PostgresHook</span><span class="p">(</span><span class="n">postgres_conn_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postgres_conn_id</span><span class="p">)</span>
+            <span class="n">postgres_connection</span> <span class="o">=</span> <span class="n">postgres_conn</span><span class="o">.</span><span class="n">get_conn</span><span class="p">()</span>
+            <span class="k">with</span> <span class="n">postgres_connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span> <span class="k">as</span> <span class="n">cursor</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT MAX(_id) FROM </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">;&quot;</span>
+                    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+                    <span class="n">last_id</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SELECT column_name FROM information_schema.columns WHERE table_name = &#39;</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">&#39; AND column_name NOT IN (&#39;id&#39;, &#39;geom&#39;);&quot;</span>
+                    <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+                    <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()}</span>
+                    <span class="n">postgres_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">form_columns_names</span><span class="p">)</span> <span class="o">!=</span> <span class="n">columns</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="n">columns</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The layer is already loaded but with other attributes/columns. The layer will be overwritten from the beginning with the new attributes/columns.&quot;</span><span class="p">)</span>
+                        <span class="n">columns_different</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="n">last_id</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">columns_different</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">except</span> <span class="n">psycopg2</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">UndefinedTable</span><span class="p">:</span>
+                    <span class="n">last_id</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;The table/dataset does not exist.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">last_id</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">postgres_connection</span> <span class="o">=</span> <span class="n">BaseHook</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postgres_conn_id</span><span class="p">)</span>
+        <span class="n">pg_username</span> <span class="o">=</span> <span class="n">postgres_connection</span><span class="o">.</span><span class="n">login</span>
+        <span class="n">pg_password</span> <span class="o">=</span> <span class="n">postgres_connection</span><span class="o">.</span><span class="n">password</span>
+        <span class="n">pg_host</span> <span class="o">=</span> <span class="n">postgres_connection</span><span class="o">.</span><span class="n">host</span>
+        <span class="n">pg_port</span> <span class="o">=</span> <span class="n">postgres_connection</span><span class="o">.</span><span class="n">port</span>
+        <span class="n">pg_dbname</span> <span class="o">=</span> <span class="n">postgres_connection</span><span class="o">.</span><span class="n">schema</span>
+
+        <span class="n">json_form</span> <span class="o">=</span> <span class="n">kobo_conn</span><span class="o">.</span><span class="n">get_form_submission</span><span class="p">(</span><span class="n">formid</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="p">,</span> <span class="n">last_id</span><span class="o">=</span><span class="n">last_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">json_form</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AirflowSkipException</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Form ID </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">formid</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">form_id_string</span><span class="si">}</span><span class="s1"> does not have data to retrieved for &quot;_id&quot; higher than </span><span class="si">{</span><span class="n">last_id</span><span class="si">}</span><span class="s1">. Skipping execution.&#39;</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_form</span><span class="p">)</span>
+        <span class="n">attachment_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">form_columns</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;video&quot;</span><span class="p">,</span> <span class="s2">&quot;audio&quot;</span><span class="p">]]</span>
+        <span class="n">repeat_columns_copy</span> <span class="o">=</span> <span class="n">repeat_columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            
+            <span class="c1"># Transform repeat fields responses</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">form_columns</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1"># if column_name in key and any(key.startswith(col) for col in repeat_columns): # Repeat columns </span>
+                <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">column</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">repeat_columns</span><span class="p">):</span> <span class="c1"># Repeat columns</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_repeat</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+                    <span class="n">repeat_columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="s1">&#39;/&#39;</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">attachment_columns</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">attachment_columns</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;_attachments&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;_attachments&quot;</span><span class="p">)</span>
+                <span class="n">attachments_needed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="s2">&quot;_attachments&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">attachments_needed</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">attachments_needed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">form_columns_names</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span> <span class="c1"># Happens when all submissions are null for a specific column. The API endpoint skips this column.</span>
+                            <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error column: </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">&quot;There are columns specified that do not exist in the form.&quot;</span><span class="p">)</span>
+
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">form_columns_names</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">form_columns_names</span><span class="p">]</span>
+            <span class="n">attachments_needed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">repeat_geometric_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="n">repeat_columns_copy</span><span class="p">)),</span> <span class="n">geometric_columns</span><span class="p">))</span>
+        <span class="n">repeat_geometric_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">repeat_geometric_columns</span><span class="p">]</span>
+        <span class="n">repeat_geometric_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">repeat_geometric_columns</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">geometric_column</span> <span class="ow">in</span> <span class="n">repeat_geometric_columns</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_repeat_geometry_column</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">geometric_column</span><span class="p">)</span>
+
+        <span class="n">attachment_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">attachment_columns</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">attachment_columns</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">process_attachments</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">attachment_columns</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">attachments_needed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_attachments&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_attachments&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;_attachments&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_attachments</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">attachments_needed</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="s2">&quot;_attachments&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;_attachments&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">gdfs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">geographic_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(-?\d+(\.\d+)?\s+-?\d+(\.\d+)?\s+0(\.0)?\s+0(\.0)?)(;(-?\d+(\.\d+)?\s+-?\d+(\.\d+)?\s+0(\.0)?\s+0(\.0)?))*$&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="p">[</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">geometric_columns</span><span class="p">]:</span>
+                <span class="n">valid_rows</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="n">geographic_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+                <span class="k">if</span> <span class="n">valid_rows</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                    <span class="n">df_copy</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">valid_rows</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="n">df_copy</span><span class="p">[</span><span class="s1">&#39;geom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_copy</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">create_geometry</span><span class="p">)</span>
+                    <span class="n">gdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">df_copy</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="s1">&#39;geom&#39;</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">gdfs</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">gdfs</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AirflowException</span><span class="p">(</span><span class="s2">&quot;There are not geometry (coordinates) columns valid in this form.&quot;</span><span class="p">)</span>
+
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;_id&#39;</span><span class="p">)</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="s1">&#39;epsg:4326&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table preview:</span><span class="se">\n</span><span class="si">{</span><span class="n">gdf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Table columns: </span><span class="si">{</span><span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">engine</span> <span class="o">=</span> <span class="n">create_engine</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;postgresql://</span><span class="si">{</span><span class="n">pg_username</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">pg_password</span><span class="si">}</span><span class="s1">@</span><span class="si">{</span><span class="n">pg_host</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">pg_port</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">pg_dbname</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">geonode_hook</span> <span class="o">=</span> <span class="n">GeoNodeHook</span><span class="p">(</span><span class="n">geonode_conn_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">geonode_conn_id</span><span class="p">)</span>
+            <span class="n">inspector</span> <span class="o">=</span> <span class="n">inspect</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+            <span class="n">table_exists</span> <span class="o">=</span> <span class="n">inspector</span><span class="o">.</span><span class="n">has_table</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">table_exists</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;replace&quot;</span> <span class="ow">or</span> <span class="n">columns_different</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="n">gdf</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">gdf</span><span class="o">.</span><span class="n">to_postgis</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;replace&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="k">with</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">connection</span><span class="p">:</span>
+                    <span class="n">create_sequence_sql</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">                        ALTER TABLE </span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2"> ADD COLUMN id SERIAL PRIMARY KEY;</span>
+<span class="s2">                    &quot;&quot;&quot;</span>
+                    <span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">text</span><span class="p">(</span><span class="n">create_sequence_sql</span><span class="p">))</span>
+                    <span class="n">geonode_hook</span><span class="o">.</span><span class="n">publish_layer</span><span class="p">(</span><span class="n">layer_names</span><span class="o">=</span><span class="n">table</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">table_exists</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;append&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="s1">&#39;id&#39;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">gdf</span><span class="o">.</span><span class="n">to_postgis</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">if_exists</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GeoDataFrame successfully uploaded to GeoNode&quot;</span><span class="p">)</span>
+            <span class="n">geonode_hook</span><span class="o">.</span><span class="n">update_layer</span><span class="p">(</span><span class="n">layer_names</span><span class="o">=</span><span class="n">table</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">table_exists</span><span class="p">:</span>
+                <span class="n">geonode_hook</span><span class="o">.</span><span class="n">update_style</span><span class="p">(</span>
+                    <span class="n">style_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s1">&#39;style.sld&#39;</span><span class="p">),</span>
+                    <span class="n">style_name</span><span class="o">=</span><span class="n">table</span>
+                <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AirflowException</span><span class="p">(</span><span class="s2">&quot;Error trying to upload GeoDataFrame to GeoNode&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator.parse_repeat">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_repeat">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_repeat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method process each row from repeat-type column (not include attachments columns) of a DataFrame and parse it to be displayed correctly in GeoNode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String with each response formated correctly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>  <span class="c1"># Ensures that the data is in JSON format</span>
+        <span class="n">lists</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">x</span><span class="p">])</span>   <span class="c1"># Extracts list of sub-objects</span>
+
+        <span class="c1"># Create columns for each subobject</span>
+        <span class="n">sub_cols</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">sublist</span> <span class="ow">in</span> <span class="n">lists</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sublist</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">sublist</span><span class="p">:</span>
+                    <span class="n">sub_cols</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sublist</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">sub_cols</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sublist</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Create columns with lists of values</span>
+        <span class="k">for</span> <span class="n">sub_col</span> <span class="ow">in</span> <span class="n">sub_cols</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">sub_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">lists</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub_col</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">x</span> <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sub_col</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># Delete original column</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator.process_repeat_geometry_column">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_repeat_geometry_column">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_repeat_geometry_column</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator.process_attachments">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.process_attachments">[docs]</a>
+    <span class="k">def</span> <span class="nf">process_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">attachment_columns</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process each row to handle attachment columns in the DataFrame. </span>
+<span class="sd">        For simple attachment columns (strings), replace the value with the download URL.</span>
+<span class="sd">        For multiple attachment columns (lists), replace each value with the corresponding download URL, separated by spaces.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;_attachments&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">attachment_columns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">cell</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">cell</span> <span class="o">=</span> <span class="n">cell</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;(&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+                        <span class="k">for</span> <span class="n">attachment</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;_attachments&quot;</span><span class="p">]:</span>
+                            <span class="n">attachment_name</span> <span class="o">=</span> <span class="n">attachment</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                            <span class="k">if</span> <span class="n">cell</span> <span class="o">==</span> <span class="n">attachment_name</span><span class="p">:</span>
+                                <span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">attachment</span><span class="p">[</span><span class="s2">&quot;download_url&quot;</span><span class="p">]</span>
+                                <span class="k">break</span>
+
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cell</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">filename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">cell</span><span class="p">]</span>
+
+                        <span class="n">urls</span> <span class="o">=</span> <span class="p">[]</span>
+                        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">cell</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">attachment</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;_attachments&quot;</span><span class="p">]:</span>
+                                <span class="n">attachment_name</span> <span class="o">=</span> <span class="n">attachment</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                                <span class="k">if</span> <span class="n">filename</span> <span class="o">==</span> <span class="n">attachment_name</span><span class="p">:</span>
+                                    <span class="n">urls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">attachment</span><span class="p">[</span><span class="s2">&quot;download_url&quot;</span><span class="p">])</span>
+                        <span class="n">row</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">row</span></div>
+
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator.parse_attachments">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.parse_attachments">[docs]</a>
+    <span class="k">def</span> <span class="nf">parse_attachments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method process each row from attachments column of a DataFrame and parse it to be displayed correctly in GeoNode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            String with each URL formated correctly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="ow">and</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&quot;&quot;&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot; &quot;&#39;</span><span class="p">]:</span>
+            <span class="n">urls</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">attachment</span> <span class="ow">in</span> <span class="n">field</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">attachment</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;download_url&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">urls</span><span class="p">:</span>
+                            <span class="n">urls</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">urls</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">urls</span> <span class="o">=</span> <span class="n">values</span>
+            <span class="k">return</span> <span class="n">urls</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="KoboToGeoNodeOperator.create_geometry">
+<a class="viewcode-back" href="../../../kobo_provider.operators.html#kobo_provider.operators.kobotoolbox.KoboToGeoNodeOperator.create_geometry">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method process each row from coordinates column of a DataFrame and identifies which geometry type is and parse it to a standard geometric field.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Standard geometric object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coordinates</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">LineString</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">MultiLineString</span><span class="p">([</span><span class="n">LineString</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)])</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">coordinates</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">coordinates</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Kan Territory &amp; IT.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

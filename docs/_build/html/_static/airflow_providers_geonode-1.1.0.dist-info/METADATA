@@ -1,0 +1,348 @@
+Metadata-Version: 2.1
+Name: airflow_providers_geonode
+Version: 1.1.0
+Summary: A GeoNode provider for Apache Airflow
+Home-page: https://github.com/Kan-T-IT/geonode-provider
+Author: Fawzi El Gamal
+Author-email: fawzielgamal@icloud.com
+License: Apache-2.0
+Project-URL: Bug Tracker, https://git.kan.com.ar/kan/airflow-providers/geonode-provider/-/issues
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: apache-airflow >=1.10.0
+Provides-Extra: dev
+Requires-Dist: mypy ==1.* ; extra == 'dev'
+Requires-Dist: pre-commit ==2.15.0 ; extra == 'dev'
+Requires-Dist: pydantic ; extra == 'dev'
+
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+
+# GeoNode Provider for Apache Airflow
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License](https://img.shields.io/:license-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.txt)
+[![Linkedin](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=)](https://ar.linkedin.com/company/kan-territory-it)
+
+[<img src="https://kan.com.ar/wp-content/uploads/2024/01/logoSM.png" alt="KAN" height="60" style="margin-right: 20px;">](https://kan.com.ar/)
+[<img src="https://kan.com.ar/wp-content/uploads/2024/05/geonode_logo.png" alt="GeoNode" width="380" height="100">](https://geonode.org/)
+[<img src="https://raw.githubusercontent.com/apache/airflow/19ebcac2395ef9a6b6ded3a2faa29dc960c1e635/docs/apache-airflow/img/logos/wordmark_1.png" alt="Airflow" width="250" height="100">](https://airflow.apache.org/)
+
+<br>
+
+## Contents
+* [About](#about)
+  * [Methods](#methods)
+* [Installation](#installation)
+* [Configuration](#configuration)
+  * [Connections](#connections)
+      * [GeoNode connection](#geonode-connection)
+* [Example DAG](#example-dag)
+
+<br>
+
+## About
+This provider has the purpose of connecting a GeoNode instance with Apache Airflow, in order to be able to group and encapsulate the most common methods to interact with GeoNode.
+The user will have the following methods available:
+
+### Methods
+* **import_layer**: runs the "*importlayers*" command in the GeoNode container to upload the datasets contents in a specific directory/folder to GeoServer.
+* **publish_layer**: publishes a layer or set of layers uploaded to the database in GeoServer.
+* **update_layer**: runs the "*updatelayers*" command in the GeoNode container so that the layer already uploaded, published and recognized by GeoServer, is now visible in GeoNode.
+* **upload_dataset**: uploads a layer or set of layers in "*.zip*", "*.shp*", "*.dbf*", "*.shx*", "*.prj*" or "*.tif*" format to GeoNode via API v2.
+* **upload_style**: uploads a style in "*.sld*" format to GeoServer. 
+* **update_style**: update an existing style.
+* **update_layer_style**: assigns an already uploaded style to a layer.
+* **upload_map**: creates a map in GeoNode via API v2 from a set of datasets.
+* **upload_document**: uploads a document to GeoNode via API v2.
+* **upload_metadata**: uploads/sets metadata for a given type of resource (for the moment title and supplementary information).
+* **set_permiss**: sets permissions for a given resource.
+* **get_execution_information**: gets information/metadata about a performed execution.
+
+## Installation
+
+## Configuration
+To use the *GeoNode Hook* you will first need to make some configurations:
+
+
+### Connections
+In the Airflow UI two connections must be created:
+
+#### GeoNode connection
+It will be necessary to connect Airflow with the destination GeoNode to which you want to work. For this it will be necessary to specify the following parameters related to the GeoNode instance:
+* `Connection Id`: Connection name in Airflow.
+* `Base URL`: URL/Host to GeoNode with *https* or *http* as appropiate.
+* `GeoNode username`: GeoNode app username (*optional if GeoNode API Token has been placed and GeoServer credentials will be defined bellow*).
+* `GeoNode password`: GeoNode app password (*optional if GeoNode API Token has been placed and GeoServer credentials will be defined bellow*).
+* `GeoNode API Token`: It is possible to work in GeoNode by authenticating with an API Token (*optional if GeoNode username and password has been placed*).
+* `GeoServer username`: GeoServer app username (*Optional. If GeoServer credentials differ from GeoNode credentials you must to specify them. Otherwise, you can specify only the GeoNode credentials*).
+* `GeoServer password`: GeoServer app password (*Optional. If GeoServer credentials differ from GeoNode credentials you must to specify them. Otherwise, you can specify only the GeoNode credentials*).
+* `SSH Host`: SSH host where the GeoNode instance is hosted.
+* `SSH port`: SSH port where the GeoNode instance is hosted.
+* `SSH username`: SSH username where the GeoNode instance is hosted.
+* `SSH password`: SSH password where the GeoNode instance is hosted.
+
+<p align="center" style="margin-top: 20px;">
+  <img src="https://kan.com.ar/wp-content/uploads/2024/05/geonode_airflow_conn.png" alt="GeoNode Connection" height="550px">
+</p>
+
+<br>
+
+## Example DAG
+A DAG template of how different methods of the `GeoNode Provider` could be used is provided inside the "*example-dag*" folder.\
+
+Special attention must be paid to the parameters that each task receives and their order.
+As well as the way in which the Hook is instantiated and its different methods are called.
+
+```python
+from airflow import DAG
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.python import PythonOperator
+from airflow.utils.dates import days_ago
+from datetime import timedelta
+
+from geonode_provider.hooks.geonode import GeoNodeHook
+
+
+default_args = {
+    'owner': 'KAN',
+    'depends_on_past': False,
+    'start_date': days_ago(1),
+    'retry_delay': timedelta(minutes=3),
+    'email_on_failure': False,
+    'email_on_retry': False,
+}
+
+geonode_hook = GeoNodeHook(geonode_conn_id="geonode_connection_id_airflow") # Instance GeoNodeHook
+
+with DAG("GeonodeHook-ExampleDAG", default_args=default_args, schedule_interval=None, tags=['Airflow', 'GeoNode']) as dag:
+
+    start = EmptyOperator(
+        task_id='start',
+        dag=dag
+    )
+
+    import_layer_task = PythonOperator(
+        task_id='import_layer_task',
+        python_callable=geonode_hook.import_layer,
+        op_args=[
+            "path/to/you/datasets/directory"
+        ],
+        provide_context=True,
+        dag=dag
+    )
+
+    publish_layer_task = PythonOperator(
+    task_id='publish_layer_task',
+    python_callable=geonode_hook.publish_layer,
+    op_args=[
+        "your_dataset_name"
+    ],
+    provide_context=True,
+    dag=dag
+    )
+
+    update_layer_task = PythonOperator(
+        task_id='update_layer_task',
+        python_callable=geonode_hook.update_layer,
+        op_args=[
+            "your_dataset_name"
+        ],
+        provide_context=True,
+        dag=dag
+    )
+
+    upload_dataset_api = PythonOperator(
+        task_id='upload_dataset_api',
+        python_callable=geonode_hook.upload_dataset,
+        op_args={
+            "path/to/you/datasets/directory/or/file"
+        },
+        provide_context=True,
+        dag=dag
+    )
+
+    upload_style_task = PythonOperator(
+        task_id='upload_style_task',
+        python_callable=geonode_hook.upload_style,
+        op_args=[
+            "path/to/you/sld/style",
+            "style_name" # Optional
+        ],
+        provide_context=True,
+        dag=dag
+    )
+
+    update_style_task = PythonOperator(
+        task_id='update_style_task',
+        python_callable=geonode_hook.update_style,
+        op_args=[
+            "path/to/you/sld/style",
+            "style_name" # Optional
+        ],
+        provide_context=True,
+        dag=dag
+    )
+
+    update_layer_style_task = PythonOperator(
+    task_id='update_layer_style_task',
+    python_callable=geonode_hook.update_layer_style,
+    op_args=[
+        "your_dataset_name",
+        "your_style_name.sld"
+    ],
+    provide_context=True,
+    dag=dag
+    )
+
+    upload_map = PythonOperator(
+        task_id='upload_map',
+        python_callable=geonode_hook.upload_map,
+        op_args=[
+            [dataset_1_id, dataset_2_id, dataset_3_id, etc],
+            "Map Title"
+        ],
+        provide_context=True,
+        dag=dag
+    )
+
+    upload_document_task = PythonOperator(
+        task_id='upload_document_task',
+        python_callable=geonode_hook.upload_document,
+        op_args=[
+            "path/to/your/document"
+        ],
+        provide_context=True,
+        dag=dag
+    )
+
+    upload_metadata_task = PythonOperator(
+    task_id='upload_metadata_task',
+    python_callable=geonode_hook.upload_metadata,
+    op_args=[
+        "your_resource_type",
+        your_resource_id,
+        "Resource Title",
+        "Resource supplemental information"
+    ],
+    provide_context=True,
+    dag=dag
+    )
+
+    set_permiss_task = PythonOperator(
+    task_id='set_permiss_task',
+    python_callable=geonode_hook.set_permiss,
+    op_args=[
+        your_resource_id,
+        {
+            "users": [
+                {
+                    "id": <user_id>,
+                    "permissions": "none"
+                },
+                {
+                    "id": <user_id>,
+                    "permissions": "view"
+                },
+                {
+                    "id": <user_id>,
+                    "permissions": "download"
+                },
+                {
+                    "id": <user_id>,
+                    "permissions": "edit"
+                },
+                {
+                    "id": <user_id>,
+                    "permissions": "manage"
+                },
+                {
+                    "id": <user_id>,
+                    "permissions": "owner"
+                }
+            ],
+            "groups": [
+                {
+                    "id": <group_id>,
+                    "permissions": "none"
+                },
+                {
+                    "id": <group_id>,
+                    "permissions": "none"
+                }
+            ],
+            "organizations": [
+                {
+                "id": <organization_id>,
+                "permissions": "edit"
+                }
+            ]
+        }
+    ],
+    provide_context=True,
+    dag=dag
+    )
+
+    get_execution_information_task = PythonOperator(
+    task_id='get_execution_information_task',
+    python_callable=geonode_hook._get_execution_information,
+    op_args=[
+        "execution_id"
+    ],
+    provide_context=True,
+    dag=dag
+    )
+
+    end = EmptyOperator(
+        task_id='end',
+        dag=dag
+    )
+
+
+(
+start
+>> import_layer_task
+>> publish_layer_task
+>> update_layer_task
+>> upload_dataset_api
+>> upload_style_task
+>> update_layer_style_task
+>> upload_map
+>> upload_document_task
+>> upload_metadata_task
+>> set_permiss_task
+>> get_execution_information_task
+>> end
+)
+```
+
+
+
+<br>
+
+---
+© 2024 KAN Territory & IT. All rights reserved.
+
