@@ -39,7 +39,7 @@ import os
 
 class KoboToGeoNodeOperator(BaseOperator):
     """
-    This operator integrates KoboToolBox with GeoNode, automating the migration of georeferenced forms to GeoNode.
+        This operator integrates KoboToolBox with GeoNode, automating the migration of georeferenced forms to GeoNode.
     """
 
     template_fields = (
@@ -268,10 +268,10 @@ class KoboToGeoNodeOperator(BaseOperator):
 
     def parse_repeat(self, column, df):
         """
-        This method process each row from repeat-type column (not include attachments columns) of a DataFrame and parse it to be displayed correctly in GeoNode.
+        This method processes each row from a repeat-type column (not including attachment columns) of a DataFrame and parses it to be displayed correctly in GeoNode.
 
         Returns:
-            String with each response formated correctly.
+            String with each response formatted correctly.
         """
         df[column] = df[column].apply(lambda x: json.loads(json.dumps(x)) if isinstance(x, str) else x)  # Ensures that the data is in JSON format
         lists = df[column].apply(lambda x: x if isinstance(x, list) else [x])   # Extracts list of sub-objects
@@ -299,9 +299,9 @@ class KoboToGeoNodeOperator(BaseOperator):
 
     def process_attachments(self, row, df, attachment_columns):
         """
-        Process each row to handle attachment columns in the DataFrame. 
-        For simple attachment columns (strings), replace the value with the download URL.
-        For multiple attachment columns (lists), replace each value with the corresponding download URL, separated by spaces.
+        Processes each row to handle attachment columns in the DataFrame. 
+        For simple attachment columns (strings), it replaces the value with the download URL.
+        For multiple attachment columns (lists), it replaces each value with the corresponding download URL, separated by spaces.
         """
         if row.get("_attachments"):
             for column in attachment_columns:
@@ -332,10 +332,10 @@ class KoboToGeoNodeOperator(BaseOperator):
 
     def parse_attachments(self, field) -> str:
         """
-        This method process each row from attachments column of a DataFrame and parse it to be displayed correctly in GeoNode.
+        This method processes each row from the attachments column of a DataFrame and parses it to be displayed correctly in GeoNode.
 
         Returns:
-            String with each URL formated correctly.
+            String with each URL formatted correctly.
         """
         if field and field not in ['""', '" "']:
             urls = None
@@ -352,7 +352,7 @@ class KoboToGeoNodeOperator(BaseOperator):
 
     def create_geometry(self, row):
         """
-        This method process each row from coordinates column of a DataFrame and identifies which geometry type is and parse it to a standard geometric field.
+        This method processes each row from the coordinates column of a DataFrame, identifies the geometry type, and parses it to a standard geometric field.
 
         Returns:
             Standard geometric object.
