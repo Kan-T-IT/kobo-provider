@@ -30,10 +30,10 @@ class KoboHook(BaseHook):
     
     Methods list:
     
-    * get_form_ids: Allows to obtain the formid and the id_string of a form providing his formid or his id_string.
-    * get_form_metadata: Gets the metadata of a form.
-    * get_form_columns: Gets form columns.
-    * get_form_submission: Gets the submissions or responses for a form.
+    * get_form_ids: Allows obtaining the form ID and the ID string of a form, providing its form ID or its ID string.
+    * get_form_metadata: Retrieves the metadata of a form.
+    * get_form_columns: Retrieves the columns of a form.
+    * get_form_submission: Retrieves the submissions or responses for a form.
     """
     conn_name_attr = 'kobo_conn_id'
     default_conn_name = "kobo_default"
@@ -71,16 +71,17 @@ class KoboHook(BaseHook):
 
     def get_form_ids(self, formid:int = None, id_string:str = None) -> int:
         """
-        This method allows to get a formid and id_string for a form, providing his formid or his id_string.
-
-        :param formid: formid of a form.
+        This method allows obtaining a form ID and ID string for a form, providing its form ID or its ID string.
+    
+        :param formid: Form ID of a form.
         :type formid: int
-        :param id_string: id_string of a form.
+        :param id_string: ID string of a form.
         :type id_string: str
-
+    
         Returns:
-            This method returns the formid and the id_string for a form.
+            This method returns the form ID and the ID string for a form.
         """
+
         headers = {
             "Authorization": f"Token {self.token}"
             }
@@ -105,14 +106,15 @@ class KoboHook(BaseHook):
 
     def get_form_metadata(self, formid:int) -> dict:
         """
-        Retrieve metadata of a specific form.
-
-        :param formid: Form ID to be fetched
+        Retrieves the metadata of a specific form.
+    
+        :param formid: Form ID to be fetched.
         :type formid: int
-
+    
         Returns:
-            A JSON object (or python dict) with the form metadata.
+            A JSON object (or Python dictionary) with the form metadata.
         """
+
         self.log.info(f"Form ID: {formid}")
         headers = {
             "Authorization": f"Token {self.token}"
@@ -130,14 +132,15 @@ class KoboHook(BaseHook):
 
     def get_form_columns(self, id_string:str) -> dict:
         """
-        This method gets all columns for a specific form
-
-        :param id_string: id_string of a form.
+        This method retrieves all the columns for a specific form.
+    
+        :param id_string: ID string of a form.
         :type id_string: str
-
+    
         Returns:
-            A JSON object (or python dict) with the form columns and their types.
+            A JSON object (or Python dictionary) with the form columns and their types.
         """
+
         url = f"{self.base_url}/api/v2/assets/{id_string}/?format=json"
         headers = {
         "Authorization": f"Token {self.token}",
@@ -205,18 +208,19 @@ class KoboHook(BaseHook):
 
     def get_form_submission(self, formid:int, last_id: int = None) -> dict:
         """
-        Retrieve submission of a specific form.
-        You can specify "last_id" param that allows you to filter the sumbits with "_id" greater than the "last_id" specified
-
-        :param formid: Form ID to be fetched
+        Retrieves the submissions of a specific form.
+        You can specify the "last_id" parameter, which allows filtering submissions with an "_id" greater than the "last_id" provided.
+    
+        :param formid: Form ID to be fetched.
         :type formid: int
-
-        :param last_id: Optional. filter the sumbits with "_id" greater than the "last_id" specified
+    
+        :param last_id: Optional. Filters submissions with an "_id" greater than the "last_id" provided.
         :type last_id: int
-
+    
         Returns:
-            A JSON object (or python dict) with the form submissions.
+            A JSON object (or Python dictionary) with the form submissions.
         """
+
         self.log.info(f"Form ID: {formid}")
 
         if last_id:
