@@ -106,10 +106,10 @@
 <span class="sd">    </span>
 <span class="sd">    Methods list:</span>
 <span class="sd">    </span>
-<span class="sd">    * get_form_ids: Allows to obtain the formid and the id_string of a form providing his formid or his id_string.</span>
-<span class="sd">    * get_form_metadata: Gets the metadata of a form.</span>
-<span class="sd">    * get_form_columns: Gets form columns.</span>
-<span class="sd">    * get_form_submission: Gets the submissions or responses for a form.</span>
+<span class="sd">    * get_form_ids: Allows obtaining the form ID and the ID string of a form, providing its form ID or its ID string.</span>
+<span class="sd">    * get_form_metadata: Retrieves the metadata of a form.</span>
+<span class="sd">    * get_form_columns: Retrieves the columns of a form.</span>
+<span class="sd">    * get_form_submission: Retrieves the submissions or responses for a form.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">conn_name_attr</span> <span class="o">=</span> <span class="s1">&#39;kobo_conn_id&#39;</span>
     <span class="n">default_conn_name</span> <span class="o">=</span> <span class="s2">&quot;kobo_default&quot;</span>
@@ -152,16 +152,17 @@
 <a class="viewcode-back" href="../../../kobo_provider.hooks.html#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_ids">[docs]</a>
     <span class="k">def</span> <span class="nf">get_form_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formid</span><span class="p">:</span><span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">id_string</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This method allows to get a formid and id_string for a form, providing his formid or his id_string.</span>
-
-<span class="sd">        :param formid: formid of a form.</span>
+<span class="sd">        This method allows obtaining a form ID and ID string for a form, providing its form ID or its ID string.</span>
+<span class="sd">    </span>
+<span class="sd">        :param formid: Form ID of a form.</span>
 <span class="sd">        :type formid: int</span>
-<span class="sd">        :param id_string: id_string of a form.</span>
+<span class="sd">        :param id_string: ID string of a form.</span>
 <span class="sd">        :type id_string: str</span>
-
+<span class="sd">    </span>
 <span class="sd">        Returns:</span>
-<span class="sd">            This method returns the formid and the id_string for a form.</span>
+<span class="sd">            This method returns the form ID and the ID string for a form.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Token </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">}</span>
@@ -189,14 +190,15 @@
 <a class="viewcode-back" href="../../../kobo_provider.hooks.html#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_metadata">[docs]</a>
     <span class="k">def</span> <span class="nf">get_form_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formid</span><span class="p">:</span><span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve metadata of a specific form.</span>
-
-<span class="sd">        :param formid: Form ID to be fetched</span>
+<span class="sd">        Retrieves the metadata of a specific form.</span>
+<span class="sd">    </span>
+<span class="sd">        :param formid: Form ID to be fetched.</span>
 <span class="sd">        :type formid: int</span>
-
+<span class="sd">    </span>
 <span class="sd">        Returns:</span>
-<span class="sd">            A JSON object (or python dict) with the form metadata.</span>
+<span class="sd">            A JSON object (or Python dictionary) with the form metadata.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Form ID: </span><span class="si">{</span><span class="n">formid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Token </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -217,14 +219,15 @@
 <a class="viewcode-back" href="../../../kobo_provider.hooks.html#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_columns">[docs]</a>
     <span class="k">def</span> <span class="nf">get_form_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">id_string</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This method gets all columns for a specific form</span>
-
-<span class="sd">        :param id_string: id_string of a form.</span>
+<span class="sd">        This method retrieves all the columns for a specific form.</span>
+<span class="sd">    </span>
+<span class="sd">        :param id_string: ID string of a form.</span>
 <span class="sd">        :type id_string: str</span>
-
+<span class="sd">    </span>
 <span class="sd">        Returns:</span>
-<span class="sd">            A JSON object (or python dict) with the form columns and their types.</span>
+<span class="sd">            A JSON object (or Python dictionary) with the form columns and their types.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/api/v2/assets/</span><span class="si">{</span><span class="n">id_string</span><span class="si">}</span><span class="s2">/?format=json&quot;</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;Authorization&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Token </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">token</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -295,18 +298,19 @@
 <a class="viewcode-back" href="../../../kobo_provider.hooks.html#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_submission">[docs]</a>
     <span class="k">def</span> <span class="nf">get_form_submission</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formid</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">last_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve submission of a specific form.</span>
-<span class="sd">        You can specify &quot;last_id&quot; param that allows you to filter the sumbits with &quot;_id&quot; greater than the &quot;last_id&quot; specified</span>
-
-<span class="sd">        :param formid: Form ID to be fetched</span>
+<span class="sd">        Retrieves the submissions of a specific form.</span>
+<span class="sd">        You can specify the &quot;last_id&quot; parameter, which allows filtering submissions with an &quot;_id&quot; greater than the &quot;last_id&quot; provided.</span>
+<span class="sd">    </span>
+<span class="sd">        :param formid: Form ID to be fetched.</span>
 <span class="sd">        :type formid: int</span>
-
-<span class="sd">        :param last_id: Optional. filter the sumbits with &quot;_id&quot; greater than the &quot;last_id&quot; specified</span>
+<span class="sd">    </span>
+<span class="sd">        :param last_id: Optional. Filters submissions with an &quot;_id&quot; greater than the &quot;last_id&quot; provided.</span>
 <span class="sd">        :type last_id: int</span>
-
+<span class="sd">    </span>
 <span class="sd">        Returns:</span>
-<span class="sd">            A JSON object (or python dict) with the form submissions.</span>
+<span class="sd">            A JSON object (or Python dictionary) with the form submissions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Form ID: </span><span class="si">{</span><span class="n">formid</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">last_id</span><span class="p">:</span>

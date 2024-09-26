@@ -28,8 +28,9 @@ def get_provider_info():
         "name": "Fab",
         "description": "`Flask App Builder <https://flask-appbuilder.readthedocs.io/>`__\n",
         "state": "ready",
-        "source-date-epoch": 1723970140,
+        "source-date-epoch": 1726860772,
         "versions": [
+            "1.4.0",
             "1.3.0",
             "1.2.2",
             "1.2.1",
@@ -50,6 +51,8 @@ def get_provider_info():
             "google-re2>=1.0",
             "jmespath>=0.7.0",
         ],
+        "additional-extras": [{"name": "kerberos", "dependencies": ["kerberos>=1.3.0"]}],
+        "devel-dependencies": ["kerberos>=1.3.0"],
         "config": {
             "fab": {
                 "description": "This section contains configs specific to FAB provider.",

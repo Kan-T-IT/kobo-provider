@@ -101,10 +101,10 @@
 <p>Interact with KoboToolBox.</p>
 <p>Methods list:</p>
 <ul class="simple">
-<li><p>get_form_ids: Allows to obtain the formid and the id_string of a form providing his formid or his id_string.</p></li>
-<li><p>get_form_metadata: Gets the metadata of a form.</p></li>
-<li><p>get_form_columns: Gets form columns.</p></li>
-<li><p>get_form_submission: Gets the submissions or responses for a form.</p></li>
+<li><p>get_form_ids: Allows obtaining the form ID and the ID string of a form, providing its form ID or its ID string.</p></li>
+<li><p>get_form_metadata: Retrieves the metadata of a form.</p></li>
+<li><p>get_form_columns: Retrieves the columns of a form.</p></li>
+<li><p>get_form_submission: Retrieves the submissions or responses for a form.</p></li>
 </ul>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="kobo_provider.hooks.kobotoolbox.KoboHook.conn_name_attr">
@@ -124,13 +124,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="kobo_provider.hooks.kobotoolbox.KoboHook.get_form_columns">
 <span class="sig-name descname"><span class="pre">get_form_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/kobo_provider/hooks/kobotoolbox.html#KoboHook.get_form_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_columns" title="Link to this definition"></a></dt>
-<dd><p>This method gets all columns for a specific form</p>
+<dd><p>This method retrieves all the columns for a specific form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>id_string</strong> (<em>str</em>) – id_string of a form.</p>
+<dd class="field-odd"><p><strong>id_string</strong> (<em>str</em>) – ID string of a form.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A JSON object (or python dict) with the form columns and their types.</p>
+<dd class="field-even"><p>A JSON object (or Python dictionary) with the form columns and their types.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -138,16 +138,16 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="kobo_provider.hooks.kobotoolbox.KoboHook.get_form_ids">
 <span class="sig-name descname"><span class="pre">get_form_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/kobo_provider/hooks/kobotoolbox.html#KoboHook.get_form_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_ids" title="Link to this definition"></a></dt>
-<dd><p>This method allows to get a formid and id_string for a form, providing his formid or his id_string.</p>
+<dd><p>This method allows obtaining a form ID and ID string for a form, providing its form ID or its ID string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>formid</strong> (<em>int</em>) – formid of a form.</p></li>
-<li><p><strong>id_string</strong> (<em>str</em>) – id_string of a form.</p></li>
+<li><p><strong>formid</strong> (<em>int</em>) – Form ID of a form.</p></li>
+<li><p><strong>id_string</strong> (<em>str</em>) – ID string of a form.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>This method returns the formid and the id_string for a form.</p>
+<dd class="field-even"><p>This method returns the form ID and the ID string for a form.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -155,13 +155,13 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="kobo_provider.hooks.kobotoolbox.KoboHook.get_form_metadata">
 <span class="sig-name descname"><span class="pre">get_form_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/kobo_provider/hooks/kobotoolbox.html#KoboHook.get_form_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_metadata" title="Link to this definition"></a></dt>
-<dd><p>Retrieve metadata of a specific form.</p>
+<dd><p>Retrieves the metadata of a specific form.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>formid</strong> (<em>int</em>) – Form ID to be fetched</p>
+<dd class="field-odd"><p><strong>formid</strong> (<em>int</em>) – Form ID to be fetched.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A JSON object (or python dict) with the form metadata.</p>
+<dd class="field-even"><p>A JSON object (or Python dictionary) with the form metadata.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -169,17 +169,17 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="kobo_provider.hooks.kobotoolbox.KoboHook.get_form_submission">
 <span class="sig-name descname"><span class="pre">get_form_submission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="_modules/kobo_provider/hooks/kobotoolbox.html#KoboHook.get_form_submission"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#kobo_provider.hooks.kobotoolbox.KoboHook.get_form_submission" title="Link to this definition"></a></dt>
-<dd><p>Retrieve submission of a specific form.
-You can specify “last_id” param that allows you to filter the sumbits with “_id” greater than the “last_id” specified</p>
+<dd><p>Retrieves the submissions of a specific form.
+You can specify the “last_id” parameter, which allows filtering submissions with an “_id” greater than the “last_id” provided.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>formid</strong> (<em>int</em>) – Form ID to be fetched</p></li>
-<li><p><strong>last_id</strong> (<em>int</em>) – Optional. filter the sumbits with “_id” greater than the “last_id” specified</p></li>
+<li><p><strong>formid</strong> (<em>int</em>) – Form ID to be fetched.</p></li>
+<li><p><strong>last_id</strong> (<em>int</em>) – Optional. Filters submissions with an “_id” greater than the “last_id” provided.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A JSON object (or python dict) with the form submissions.</p>
+<dd class="field-even"><p>A JSON object (or Python dictionary) with the form submissions.</p>
 </dd>
 </dl>
 </dd></dl>

@@ -1,4 +1,4 @@
-__version__ = "3.10.5"
+__version__ = "3.10.6"
 
 from typing import TYPE_CHECKING, Tuple
 
@@ -6,6 +6,7 @@ from . import hdrs as hdrs
 from .client import (
     BaseConnector,
     ClientConnectionError,
+    ClientConnectionResetError,
     ClientConnectorCertificateError,
     ClientConnectorError,
     ClientConnectorSSLError,
@@ -106,6 +107,7 @@ from .tracing import (
     TraceRequestChunkSentParams as TraceRequestChunkSentParams,
     TraceRequestEndParams as TraceRequestEndParams,
     TraceRequestExceptionParams as TraceRequestExceptionParams,
+    TraceRequestHeadersSentParams as TraceRequestHeadersSentParams,
     TraceRequestRedirectParams as TraceRequestRedirectParams,
     TraceRequestStartParams as TraceRequestStartParams,
     TraceResponseChunkReceivedParams as TraceResponseChunkReceivedParams,
@@ -123,6 +125,7 @@ __all__: Tuple[str, ...] = (
     # client
     "BaseConnector",
     "ClientConnectionError",
+    "ClientConnectionResetError",
     "ClientConnectorCertificateError",
     "ClientConnectorError",
     "ClientConnectorSSLError",
@@ -224,6 +227,7 @@ __all__: Tuple[str, ...] = (
     "TraceRequestChunkSentParams",
     "TraceRequestEndParams",
     "TraceRequestExceptionParams",
+    "TraceRequestHeadersSentParams",
     "TraceRequestRedirectParams",
     "TraceRequestStartParams",
     "TraceResponseChunkReceivedParams",

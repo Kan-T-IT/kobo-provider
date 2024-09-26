@@ -28,8 +28,8 @@ def get_provider_info():
         "name": "Common IO",
         "description": "``Common IO Provider``\n",
         "state": "ready",
-        "source-date-epoch": 1722663322,
-        "versions": ["1.4.0", "1.3.2", "1.3.1", "1.3.0", "1.2.0", "1.1.0", "1.0.1", "1.0.0"],
+        "source-date-epoch": 1726860435,
+        "versions": ["1.4.1", "1.4.0", "1.3.2", "1.3.1", "1.3.0", "1.2.0", "1.1.0", "1.0.1", "1.0.0"],
         "dependencies": ["apache-airflow>=2.8.0"],
         "integrations": [
             {

@@ -31,6 +31,7 @@ from .client_reqrep import ClientResponse
 from .client_ws import ClientWebSocketResponse
 from .helpers import sentinel
 from .http import HttpVersion, RawRequestMessage
+from .streams import EMPTY_PAYLOAD, StreamReader
 from .typedefs import StrOrURL
 from .web import (
     Application,
@@ -118,10 +119,13 @@ class BaseTestServer(ABC):
         await self.runner.setup()
         if not self.port:
             self.port = 0
+        absolute_host = self.host
         try:
             version = ipaddress.ip_address(self.host).version
         except ValueError:
             version = 4
+        if version == 6:
+            absolute_host = f"[{self.host}]"
         family = socket.AF_INET6 if version == 6 else socket.AF_INET
         _sock = self.socket_factory(self.host, self.port, family)
         self.host, self.port = _sock.getsockname()[:2]
@@ -134,7 +138,7 @@ class BaseTestServer(ABC):
         self.port = sockets[0].getsockname()[1]
         if not self.scheme:
             self.scheme = "https" if self._ssl else "http"
-        self._root = URL(f"{self.scheme}://{self.host}:{self.port}")
+        self._root = URL(f"{self.scheme}://{absolute_host}:{self.port}")
 
     @abstractmethod  # pragma: no cover
     async def _make_runner(self, **kwargs: Any) -> BaseRunner:
@@ -631,7 +635,7 @@ def make_mocked_request(
     writer: Any = sentinel,
     protocol: Any = sentinel,
     transport: Any = sentinel,
-    payload: Any = sentinel,
+    payload: StreamReader = EMPTY_PAYLOAD,
     sslcontext: Optional[SSLContext] = None,
     client_max_size: int = 1024**2,
     loop: Any = ...,
@@ -699,9 +703,6 @@ def make_mocked_request(
 
     protocol.transport = transport
     protocol.writer = writer
-
-    if payload is sentinel:
-        payload = mock.Mock()
 
     req = Request(
         message, payload, protocol, writer, task, loop, client_max_size=client_max_size

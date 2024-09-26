@@ -225,7 +225,8 @@ class URL:
     _FRAGMENT_REQUOTER = _Quoter(safe="?/:@")
 
     _UNQUOTER = _Unquoter()
-    _PATH_UNQUOTER = _Unquoter(ignore="/", unsafe="+")
+    _PATH_UNQUOTER = _Unquoter(unsafe="+")
+    _PATH_SAFE_UNQUOTER = _Unquoter(ignore="/%", unsafe="+")
     _QS_UNQUOTER = _Unquoter(qs=True)
 
     _val: SplitResult
@@ -711,6 +712,17 @@ class URL:
         return self._PATH_UNQUOTER(self.raw_path)
 
     @cached_property
+    def path_safe(self) -> str:
+        """Decoded path of URL.
+
+        / for absolute URLs without path part.
+
+        / (%2F) and % (%25) are not decoded
+
+        """
+        return self._PATH_SAFE_UNQUOTER(self.raw_path)
+
+    @cached_property
     def _parsed_query(self) -> List[Tuple[str, str]]:
         """Parse query part of URL."""
         return parse_qsl(self.raw_query_string, keep_blank_values=True)
@@ -789,7 +801,7 @@ class URL:
             else:
                 parts = ["/"] + path[1:].split("/")
         else:
-            if path.startswith("/"):
+            if path and path[0] == "/":
                 parts = ["/"] + path[1:].split("/")
             else:
                 parts = path.split("/")
@@ -868,7 +880,7 @@ class URL:
 
         Raise ValueError if not.
         """
-        if host and path and not path.startswith("/"):
+        if host and path and not path[0] == "/":
             raise ValueError(
                 "Path in a URL with authority should start with a slash ('/') if set"
             )
@@ -1395,7 +1407,7 @@ class URL:
         """
         if not isinstance(suffix, str):
             raise TypeError("Invalid suffix type")
-        if suffix and not suffix.startswith(".") or suffix == ".":
+        if suffix and not suffix[0] == "." or suffix == ".":
             raise ValueError(f"Invalid suffix {suffix!r}")
         name = self.raw_name
         if not name:

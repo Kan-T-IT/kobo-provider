@@ -28,8 +28,9 @@ def get_provider_info():
         "name": "File Transfer Protocol (FTP)",
         "description": "`File Transfer Protocol (FTP) <https://tools.ietf.org/html/rfc114>`__\n",
         "state": "ready",
-        "source-date-epoch": 1723970162,
+        "source-date-epoch": 1726860782,
         "versions": [
+            "3.11.1",
             "3.11.0",
             "3.10.1",
             "3.10.0",

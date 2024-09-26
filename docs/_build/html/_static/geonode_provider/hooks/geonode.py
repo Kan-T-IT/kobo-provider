@@ -35,18 +35,18 @@ class GeoNodeHook(BaseHook):
     
     Methods list:
 
-    * import_layer: runs the "importlayers" command in the GeoNode container to upload the datasets contents in a specific directory/folder to GeoServer.
+    * import_layer: executes the "importlayers" command in the GeoNode container to upload the datasets contents in a specific directory/folder to GeoServer.
     * publish_layer: publishes a layer uploaded to the database in GeoServer.
-    * update_layer: runs the "updatelayers" command in the GeoNode container so that the layer already uploaded, published and recognized by GeoServer, is now visible in GeoNode.
-    * upload_dataset: uploads a layer in *.zip*, ".shp", "dbf", "shx", "prj" or ".tif" format to GeoNode via API v2.
-    * upload_style: uploads a style in ".sld" format to GeoServer.
+    * update_layer: executes the "updatelayers" command in the GeoNode container makes a layer, already uploaded, published, and recognized by GeoServer, visible in GeoNode.
+    * upload_dataset: uploads a dataset in *.zip*, ".shp", ".dbf", ".shx", ".prj" or ".tif" format to GeoNode via API v2.
+    * upload_style: uploads a style file in ".sld" format to GeoServer.
     * update_style: update an existing style.
     * update_layer_style: assigns an already uploaded style to a layer.
     * upload_map: creates a map in GeoNode via API v2 from a set of datasets.
     * upload_document: uploads a document to GeoNode via API v2.
-    * upload_metadata: uploads/sets metadata for a given type of resource (for the moment title and supplementary information).
+    * upload_metadata: uploads/sets metadata for a given type of resource (currently title and supplementary information).
     * set_permiss: sets permissions for a given resource.
-    * get_execution_information: gets information/metadata about a performed execution.
+    * get_execution_information: retrieves information/metadata about a performed execution.
     """
     conn_name_attr = 'geonode_conn_id'
     default_conn_name = "geonode_default"
@@ -184,7 +184,7 @@ class GeoNodeHook(BaseHook):
 
     def import_layer(self, layers_folder_path:str) -> None:
         """
-        This method allows to update datasets to GeoServer by passing datasets directory. Just works with directories, not with single files.
+        This method allows updating datasets to GeoServer by passing a datasets directory. It only works with directories, not with single files.
         The method uses an SSH connection to execute a Docker command within GeoNode's container.
 
         :param layers_folder_path: Path to datasets directory/folder.
@@ -234,9 +234,9 @@ class GeoNodeHook(BaseHook):
 
     def publish_layer(self, layer_names) -> None:
         """
-        This method is utilized to publish a layer to GeoServer by utilizing an API 'POST' request.
+        This method is used to publish a layer to GeoServer by utilizing an API 'POST' request.
 
-        :param layer_names: The dataset name (not title) that must be published. Is possible to pass a list of datasets names to execute this method recursively.
+        :param layer_names: The dataset name (not title) that must be published. It is possible to pass a list of dataset names to execute this method recursively.
         """
         login = HTTPBasicAuth(self.gs_username, self.gs_password)
         headers = {'Content-Type': 'application/xml'}
@@ -267,10 +267,10 @@ class GeoNodeHook(BaseHook):
 
     def update_layer(self, layer_names:str):
         """
-        The update_layer method is an operator responsible for executing the update of layers.
-        The method uses an SSH connection to execute a Docker command within GeoNode's container.
+         The update_layer method is responsible for executing the update of layers.
+    The method uses an SSH connection to execute a Docker command within GeoNode's container.
 
-        :param layer_name: The dataset name (not title) that must be updated. Is possible to pass a list of datasets names to execute this method recursively.
+        :param layer_name: The dataset name (not title) that must be updated. It is possible to pass a list of dataset names to execute this method recursively.
 
         Raises:
             AirflowException: Raised if an error occurs during the layer update process.
@@ -317,7 +317,7 @@ class GeoNodeHook(BaseHook):
 
     def upload_dataset(self, dataset_path:str) -> str:
         """
-        This method upload a dataset by GeoNode v2 API.
+        This method uploads a dataset via GeoNode v2 API.
         Datasets can be in the following formats:
         - .zip
         - .shx, .prj, .shp and .dbf
@@ -326,7 +326,7 @@ class GeoNodeHook(BaseHook):
         :param dataset_path: The dataset path that must be uploaded. The path can be a directory/folder or a single file.
 
         Returns: 
-            For vector .zip datasets, a dictionary (json) is returned with the ID of the dataset. For individual vector or rasters datasets, the run/execution ID is returned.
+            For vector .zip datasets, a dictionary (JSON) is returned with the ID of the dataset. For individual vector or rasters datasets, the run/execution ID is returned.
         """
         if os.path.exists(dataset_path):
             base, ext = os.path.splitext(dataset_path)
@@ -511,7 +511,7 @@ class GeoNodeHook(BaseHook):
         Allows to upload a style in '.sld' format.
 
         :param style_path: Path to ".sld" style file.
-        :param style_name: Optional. Name that the style will have in GeoServer. If isn't defined it will take the name of ".sld" file.
+        :param style_name: Optional. Name that the style will have in GeoServer. If not defined, it will take the name of the ".sld" file.
         """
         if not style_path.endswith(".sld"):
             self.log.error(f'Style file must to be in ".sld" format')
@@ -548,7 +548,7 @@ class GeoNodeHook(BaseHook):
         Allows to update an existing style in '.sld' format.
 
         :param style_path: Path to ".sld" style file.
-        :param style_name: Optional. Name that the style will have in GeoServer. If isn't defined it will take the name of ".sld" file.
+        :param style_name: Optional. Name that the style will have in GeoServer. If not defined, it will take the name of the ".sld" file.
         """
         if not style_path.endswith(".sld"):
             self.log.error(f'Style file must to be in ".sld" format')
@@ -582,10 +582,10 @@ class GeoNodeHook(BaseHook):
 
     def update_layer_style(self, layer_name:str, style_name:str) -> None:
         """
-        This method is employed to update the styles of a layer by utilizing an GeoServer API 'PUT' request.
+        This method is used to update the styles of a layer by utilizing a GeoServer API 'PUT' request.
 
-        :param layer_name: The layer/dataset name (not title) which want to apply the style.
-        :param style_name: The style name (already uploaded) wich want to apply to the layer/dataset.
+        :param layer_name: The layer/dataset name (not title) to which the style will be applied.
+        :param style_name: The name of the style (already uploaded) to be applied to the layer/dataset.
         """
         url = f'{self.base_url}/geoserver/rest/layers/geonode:{layer_name}'
         auth = (self.gs_username, self.gs_password)
@@ -606,13 +606,13 @@ class GeoNodeHook(BaseHook):
     def upload_map(self, datasets_ids:list, map_title:str) -> str:
         """
         The upload_map method is responsible for creating a map in GeoNode via API v2.
-        You must to choice datasets with the same projection and put them into a list. First put uppers datasets and then lowers (o base) datasets.
+        You must choose datasets with the same projection and put them into a list. First, put the upper datasets and then the lower (or base) datasets.
 
-        :param datasets_ids: List of datasets ids that should make up the map. Sorted from the outermost/upper layer to the lower ones.
+        :param datasets_ids: List of dataset IDs that should make up the map. Sorted from the outermost/upper layer to the lower ones.
         :param map_title: The title to be placed on the map.
 
         Returns:
-            This method returns a map ID just created.
+            This method returns the ID of the newly created map.
         """
         srid = None
         maplayers_metadata = list()
@@ -770,10 +770,10 @@ class GeoNodeHook(BaseHook):
         """
         This method uploads a document to GeoNode via API v2.
 
-        :param document_path: Path to document that want to be uploaded.
+        :param document_path: Path to the document that is to be uploaded.
 
         Returns:
-            This method returns the document ID that just uploaded.
+            This method returns the document ID of the uploaded document.
         """
         url = f'{self.base_url}/api/v2/documents'
         document_title = os.path.basename(document_path)
@@ -800,23 +800,23 @@ class GeoNodeHook(BaseHook):
             raise AirflowException(str(e))
         
     def upload_metadata(self, resource_type:str, resource_id:int, resource_title:str=None, resource_supplemental_information:str=None) -> None:
-        """
+"""
         The upload_metadata method is designed to update metadata for any resource type on GeoNode by API v2
-        Metadata allowed:
+        Allowed metadata:
 
         - Title
         - Supplemental information
 
-        :param resource_type: Type of resource wich want to be updated his metadata.
-            Resource type allowed:
+        :param resource_type: Type of resource whose metadata is to be updated.
+            Allowed resource types:
 
             - dataset
             - documents
             - maps
 
-        :param resource_id: ID of the resource whose metadata want to update.
-        :param resource_title: The title to be placed on the resource.
-        :param resource_supplemental_information: The supplemental information to be placed on the resource.
+        :param resource_id: ID of the resource whose metadata is to be updated.
+        :param resource_title: The title to be assigned to the resource.
+        :param resource_supplemental_information: The supplemental information to be assigned to the resource.
         """
         if not resource_type.endswith("s"):
             resource_type = f"{resource_type}s"
@@ -858,10 +858,11 @@ class GeoNodeHook(BaseHook):
         The `set_permiss` method is responsible for setting permissions for a specified resource.
         It targets the permissions API v2 endpoint and uses a 'PATCH' request to update the permissions based on the provided `permiss_data`.
 
-        :param resource_id: ID of the resource whose permiss want to update.
+        :param resource_id: ID of the resource permissions are to be updated.
         :param permiss_data: JSON/dict object with desired permission settings. 
         
         Example JSON:
+        
         .. code-block:: json
 
             {
@@ -940,9 +941,9 @@ class GeoNodeHook(BaseHook):
     
     def _get_execution_information(self, execution_id:str) -> dict:
         """
-        Method that gets metadata/information from a given execution. For example when a resource is uploaded.
+        Method that retrieves metadata/information from a given execution, for example, when a resource is uploaded.
 
-        :param execution_id: ID of the execution from which want to obtain the information.
+        :param execution_id: ID of the execution from which the information is to be retrieved.
         """
         url = f"{self.base_url}/api/v2/resource-service/execution-status/{execution_id}"
         headers = {

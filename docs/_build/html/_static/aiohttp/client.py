@@ -40,6 +40,7 @@ from . import hdrs, http, payload
 from .abc import AbstractCookieJar
 from .client_exceptions import (
     ClientConnectionError,
+    ClientConnectionResetError,
     ClientConnectorCertificateError,
     ClientConnectorError,
     ClientConnectorSSLError,
@@ -97,11 +98,12 @@ from .http import WS_KEY, HttpVersion, WebSocketReader, WebSocketWriter
 from .http_websocket import WSHandshakeError, WSMessage, ws_ext_gen, ws_ext_parse
 from .streams import FlowControlDataQueue
 from .tracing import Trace, TraceConfig
-from .typedefs import JSONEncoder, LooseCookies, LooseHeaders, StrOrURL
+from .typedefs import JSONEncoder, LooseCookies, LooseHeaders, Query, StrOrURL
 
 __all__ = (
     # client_exceptions
     "ClientConnectionError",
+    "ClientConnectionResetError",
     "ClientConnectorCertificateError",
     "ClientConnectorError",
     "ClientConnectorSSLError",
@@ -156,7 +158,7 @@ if sys.version_info >= (3, 11) and TYPE_CHECKING:
 
 
 class _RequestOptions(TypedDict, total=False):
-    params: Union[Mapping[str, Union[str, int]], str, None]
+    params: Query
     data: Any
     json: Any
     cookies: Union[LooseCookies, None]
@@ -165,7 +167,7 @@ class _RequestOptions(TypedDict, total=False):
     auth: Union[BasicAuth, None]
     allow_redirects: bool
     max_redirects: int
-    compress: Union[str, None]
+    compress: Union[str, bool, None]
     chunked: Union[bool, None]
     expect100: bool
     raise_for_status: Union[None, bool, Callable[[ClientResponse], Awaitable[None]]]
@@ -211,7 +213,7 @@ DEFAULT_TIMEOUT: Final[ClientTimeout] = ClientTimeout(total=5 * 60)
 # https://www.rfc-editor.org/rfc/rfc9110#section-9.2.2
 IDEMPOTENT_METHODS = frozenset({"GET", "HEAD", "OPTIONS", "TRACE", "PUT", "DELETE"})
 
-_RetType = TypeVar("_RetType")
+_RetType = TypeVar("_RetType", ClientResponse, ClientWebSocketResponse)
 _CharsetResolver = Callable[[ClientResponse, bytes], str]
 
 
@@ -450,7 +452,7 @@ class ClientSession:
         method: str,
         str_or_url: StrOrURL,
         *,
-        params: Optional[Mapping[str, str]] = None,
+        params: Query = None,
         data: Any = None,
         json: Any = None,
         cookies: Optional[LooseCookies] = None,
@@ -459,7 +461,7 @@ class ClientSession:
         auth: Optional[BasicAuth] = None,
         allow_redirects: bool = True,
         max_redirects: int = 10,
-        compress: Optional[str] = None,
+        compress: Union[str, bool, None] = None,
         chunked: Optional[bool] = None,
         expect100: bool = False,
         raise_for_status: Union[
@@ -627,7 +629,7 @@ class ClientSession:
                         url,
                         params=params,
                         headers=headers,
-                        skip_auto_headers=skip_headers,
+                        skip_auto_headers=skip_headers if skip_headers else None,
                         data=data,
                         cookies=all_cookies,
                         auth=auth,
@@ -827,7 +829,7 @@ class ClientSession:
         heartbeat: Optional[float] = None,
         auth: Optional[BasicAuth] = None,
         origin: Optional[str] = None,
-        params: Optional[Mapping[str, str]] = None,
+        params: Query = None,
         headers: Optional[LooseHeaders] = None,
         proxy: Optional[StrOrURL] = None,
         proxy_auth: Optional[BasicAuth] = None,
@@ -879,7 +881,7 @@ class ClientSession:
         heartbeat: Optional[float] = None,
         auth: Optional[BasicAuth] = None,
         origin: Optional[str] = None,
-        params: Optional[Mapping[str, str]] = None,
+        params: Query = None,
         headers: Optional[LooseHeaders] = None,
         proxy: Optional[StrOrURL] = None,
         proxy_auth: Optional[BasicAuth] = None,
@@ -1331,7 +1333,7 @@ class _BaseRequestContextManager(Coroutine[Any, Any, _RetType], Generic[_RetType
     __slots__ = ("_coro", "_resp")
 
     def __init__(self, coro: Coroutine["asyncio.Future[Any]", None, _RetType]) -> None:
-        self._coro = coro
+        self._coro: Coroutine["asyncio.Future[Any]", None, _RetType] = coro
 
     def send(self, arg: None) -> "asyncio.Future[Any]":
         return self._coro.send(arg)
@@ -1350,12 +1352,8 @@ class _BaseRequestContextManager(Coroutine[Any, Any, _RetType], Generic[_RetType
         return self.__await__()
 
     async def __aenter__(self) -> _RetType:
-        self._resp = await self._coro
-        return self._resp
-
-
-class _RequestContextManager(_BaseRequestContextManager[ClientResponse]):
-    __slots__ = ()
+        self._resp: _RetType = await self._coro
+        return await self._resp.__aenter__()
 
     async def __aexit__(
         self,
@@ -1363,25 +1361,11 @@ class _RequestContextManager(_BaseRequestContextManager[ClientResponse]):
         exc: Optional[BaseException],
         tb: Optional[TracebackType],
     ) -> None:
-        # We're basing behavior on the exception as it can be caused by
-        # user code unrelated to the status of the connection.  If you
-        # would like to close a connection you must do that
-        # explicitly.  Otherwise connection error handling should kick in
-        # and close/recycle the connection as required.
-        self._resp.release()
-        await self._resp.wait_for_close()
+        await self._resp.__aexit__(exc_type, exc, tb)
 
 
-class _WSRequestContextManager(_BaseRequestContextManager[ClientWebSocketResponse]):
-    __slots__ = ()
-
-    async def __aexit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc: Optional[BaseException],
-        tb: Optional[TracebackType],
-    ) -> None:
-        await self._resp.close()
+_RequestContextManager = _BaseRequestContextManager[ClientResponse]
+_WSRequestContextManager = _BaseRequestContextManager[ClientWebSocketResponse]
 
 
 class _SessionRequestContextManager:
@@ -1421,7 +1405,7 @@ def request(
     method: str,
     url: StrOrURL,
     *,
-    params: Optional[Mapping[str, str]] = None,
+    params: Query = None,
     data: Any = None,
     json: Any = None,
     headers: Optional[LooseHeaders] = None,
