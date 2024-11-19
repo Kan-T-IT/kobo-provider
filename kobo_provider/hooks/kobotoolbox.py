@@ -28,10 +28,11 @@ class KoboHook(BaseHook):
     """
     Interact with KoboToolBox.
     Methods list:
-    * get_form_ids: Allows to obtain the formid and the id_string of a form providing his formid or his id_string.
-    * get_form_metadata: Gets the metadata of a form.
-    * get_form_columns: Gets form columns.
-    * get_form_submission: Gets the submissions or responses for a form.
+
+        * get_form_ids: Allows to obtain the formid and the id_string of a form providing his formid or his id_string.
+        * get_form_metadata: Gets the metadata of a form.
+        * get_form_columns: Gets form columns.
+        * get_form_submission: Gets the submissions or responses for a form.
     """
     conn_name_attr = 'kobo_conn_id'
     default_conn_name = "kobo_default"

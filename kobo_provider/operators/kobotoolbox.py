@@ -299,8 +299,10 @@ class KoboToGeoNodeOperator(BaseOperator):
 
     def process_attachments(self, row, df, attachment_columns):
         """
-        Process each row to handle attachment columns in the DataFrame. 
+        Process each row to handle attachment columns in the DataFrame.
+
         For simple attachment columns (strings), replace the value with the download URL.
+
         For multiple attachment columns (lists), replace each value with the corresponding download URL, separated by spaces.
         """
         if row.get("_attachments"):
